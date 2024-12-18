@@ -15,37 +15,38 @@ function createNode(element) {
 function append(parent, child) {
     return parent.appendChild(child);
 }
-
-const drinks = document.getElementById('cocteles');
 const api = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=Rum';
+
 
 fetch(api)
     .then((resp) => resp.json())
     .then(function (data) {
-        console.log(data)
         let cocteles = data.drinks
+        let container = createNode("div")
+        container.classList.add(
+            "container"
+        )
+        document.body.appendChild(container)
+        let div_cocteles = createNode("div")
+        div_cocteles.setAttribute("id", "cocteles")
+        div_cocteles.classList.add(
+            "row",
+            "row-cols-3"
+        )
+        append(container, div_cocteles)
         cocteles.map(element => {
-            /*
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="..." alt="Card image cap">
-                <div class="card-body">
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                </div>
-            </div>
-            */
             let div = createNode("div")
             div.setAttribute('style', 'width: 18rem;')
             div.classList.add(
                 "card",
                 "m-5",
-                
+                "col",
+                "p-0",
+                "shadow"
             )
             let img = createNode("img")
             img.setAttribute("src", element.strDrinkThumb)
             img.setAttribute("alt", element.strDrink)
-            img.classList.add(
-                "card-img-top"
-            )
             let divbody = createNode("div")
             divbody.classList.add(
                 "card-body"
@@ -57,18 +58,42 @@ fetch(api)
             )
             let button = createNode("button")
             button.innerHTML = "Añadir al carrito"
-            button.setAttribute("id", element.idDrink)
+            button.setAttribute("value", element.idDrink)
+            button.setAttribute("id", element.strDrink)
             button.classList.add(
-                "btn", 
+                "btn",
                 "btn-primary"
             )
             append(div, img)
             append(divbody, title)
             append(div, divbody)
             append(divbody, button)
-            append(drinks, div)
+            append(document.getElementById("cocteles"), div)
         })
+        const botones = document.getElementById("cocteles").getElementsByTagName("button")
+        for (let i = 0; i < botones.length; i++) {
+            botones[i].addEventListener("click", function () {
+                if (localStorage.getItem('cocteles') != null) {
+                    let cocteles = JSON.parse(localStorage.getItem('cocteles')) 
+                    console.log(typeof(cocteles))
+                    cocteles.push(this.id)
+                    localStorage.setItem("cocteles", JSON.stringify(cocteles))
+                } else {
+                    localStorage.setItem("cocteles", JSON.stringify([this.id]))
+                }
+                location.reload()
+            });
+        }
+        if (localStorage.getItem('cocteles') != null) {
+            let locastoragetruco = JSON.parse(localStorage.getItem('cocteles')) 
+            locastoragetruco.forEach(element => {
+                let coctel = createNode("li")
+                coctel.innerHTML = element
+                document.getElementById("localS").append(coctel)
+            });
+        }
     })
     .catch(function (error) {
         console.log(error);
     });
+    
