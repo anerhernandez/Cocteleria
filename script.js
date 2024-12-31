@@ -22,78 +22,101 @@ fetch(api)
     .then((resp) => resp.json())
     .then(function (data) {
         let cocteles = data.drinks
-        let container = createNode("div")
+        let container = createNode('div')
         container.classList.add(
-            "container"
+            'container'
         )
+        append(document.getElementById("navbar"), container)
         document.body.appendChild(container)
-        let div_cocteles = createNode("div")
-        div_cocteles.setAttribute("id", "cocteles")
+        let div_cocteles = createNode('div')
+        div_cocteles.setAttribute('id', 'cocteles')
         div_cocteles.classList.add(
-            "row",
-            "row-cols-3"
+            'row',
+            'row-cols-3'
         )
         append(container, div_cocteles)
         cocteles.map(element => {
-            let div = createNode("div")
+            let div = createNode('div')
             div.setAttribute('style', 'width: 18rem;')
             div.classList.add(
-                "card",
-                "m-5",
-                "col",
-                "p-0",
-                "shadow"
+                'card',
+                'm-5',
+                'col',
+                'p-0',
+                'shadow'
             )
-            let img = createNode("img")
-            img.setAttribute("src", element.strDrinkThumb)
-            img.setAttribute("alt", element.strDrink)
-            let divbody = createNode("div")
+            let img = createNode('img')
+            img.setAttribute('src', element.strDrinkThumb)
+            img.setAttribute('alt', element.strDrink)
+            let divbody = createNode('div')
             divbody.classList.add(
-                "card-body"
+                'card-body'
             )
-            let title = createNode("h5")
+            let title = createNode('h5')
             title.innerHTML = element.strDrink
             title.classList.add(
-                "card-title"
+                'card-title'
             )
-            let button = createNode("button")
-            button.innerHTML = "Añadir al carrito"
-            button.setAttribute("value", element.idDrink)
-            button.setAttribute("id", element.strDrink)
+            let button = createNode('button')
+            button.innerHTML = 'Añadir al carrito'
+            button.setAttribute('value', element.idDrink)
+            button.setAttribute('id', element.strDrink)
             button.classList.add(
-                "btn",
-                "btn-primary"
+                'btn',
+                'btn-primary'
             )
             append(div, img)
             append(divbody, title)
             append(div, divbody)
             append(divbody, button)
-            append(document.getElementById("cocteles"), div)
+            append(document.getElementById('cocteles'), div)
         })
-        const botones = document.getElementById("cocteles").getElementsByTagName("button")
-        for (let i = 0; i < botones.length; i++) {
-            botones[i].addEventListener("click", function () {
-                if (localStorage.getItem('cocteles') != null) {
-                    let cocteles = JSON.parse(localStorage.getItem('cocteles')) 
-                    console.log(typeof(cocteles))
-                    cocteles.push(this.id)
-                    localStorage.setItem("cocteles", JSON.stringify(cocteles))
+        const buttons = document.getElementById('cocteles').getElementsByTagName('button')
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].addEventListener('click', function () {
+                if (localStorage.getItem('coctelesRaw') != null) {
+                    let coctelesRaw = JSON.parse(localStorage.getItem('coctelesRaw'))
+                    coctelesRaw.push(this.id)
+                    localStorage.setItem('coctelesRaw', JSON.stringify(coctelesRaw))
                 } else {
-                    localStorage.setItem("cocteles", JSON.stringify([this.id]))
+                    localStorage.setItem('coctelesRaw', JSON.stringify([this.id]))
                 }
                 location.reload()
             });
         }
-        if (localStorage.getItem('cocteles') != null) {
-            let locastoragetruco = JSON.parse(localStorage.getItem('cocteles')) 
-            locastoragetruco.forEach(element => {
-                let coctel = createNode("li")
+        if (localStorage.getItem('coctelesRaw') != null) {
+            let locastorageRaw = JSON.parse(localStorage.getItem('coctelesRaw'))
+
+            //Contar cuantos cocteles hay de un tipo
+            const contadorCoctel = locastorageRaw.reduce((contador, coctel) => {
+                contador[coctel] = (contador[coctel] || 0) + 1;
+                return contador;
+            }, {});
+
+            //Construir un array cambiando los elementos que contengan más de 1 coctel del mismo tipo de 'coctel' a 'coctel xN'
+            const coctelesFormatted = Object.entries(contadorCoctel).map(([coctel, count]) => {
+                return count > 1 ? `${coctel} x${count}` : coctel;
+            });
+
+            //Mostrar los cócteles por pantalla
+            coctelesFormatted.forEach(element => {
+                let coctel = createNode('li')
                 coctel.innerHTML = element
-                document.getElementById("localS").append(coctel)
+                document.getElementById('localS').append(coctel)
             });
         }
+        if (localStorage.getItem('coctelesRaw') != null) {
+            document.getElementById("vaciar").setAttribute("style", "display:in-line")
+        }
+        document.getElementById('vaciar').addEventListener('click', function () {
+            if (localStorage.getItem('coctelesRaw') != null) {
+                localStorage.clear()
+                location.reload()
+            }
+        }
+
+        )
     })
     .catch(function (error) {
         console.log(error);
     });
-    
